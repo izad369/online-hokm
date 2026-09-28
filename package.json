@@ -1,0 +1,15 @@
+{
+  "name": "online-hokm",
+  "version": "1.0.0",
+  "description": "Hokm (Court Piece) online multiplayer card game with chat, built on Cloudflare Workers + Durable Objects",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": ["hokm", "court piece", "card game", "multiplayer", "cloudflare", "workers", "durable objects"],
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
