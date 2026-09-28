@@ -73,8 +73,9 @@
   .overlay button { padding: 10px 24px; border: none; border-radius: 8px; background: var(--accent); font-weight: 700; cursor: pointer; font-size: 1.05rem; }
   .suit-pick { display: flex; gap: 16px; justify-content: center; margin: 16px 0; }
   .suit-pick button { font-size: 2rem; background: #334155; color: var(--text); padding: 12px 20px; }
-  #toast { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); background: #334155; padding: 10px 20px; border-radius: 999px; font-size: .9rem; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 20; }
+  #toast { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); background: #334155; padding: 10px 20px; border-radius: 999px; font-size: .9rem; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 20; max-width: 90%; text-align: center; }
   #toast.show { opacity: 1; }
+  #errbar { display: none; position: fixed; top: 0; left: 0; right: 0; background: #7f1d1d; color: #fff; padding: 10px; font-size: .85rem; z-index: 99; word-break: break-all; }
 
   @media (max-width: 800px) {
     #sidebar { display: none; }
@@ -165,10 +166,20 @@
 </div>
 
 <div id="toast"></div>
+<div id="errbar"></div>
 
 <script>
 (function () {
   'use strict';
+
+  // --- Diagnostics: surface any error on screen (for phones without dev tools) ---
+  var errbar = document.getElementById('errbar');
+  function showErr(m) {
+    errbar.textContent = 'ERROR: ' + m;
+    errbar.style.display = 'block';
+  }
+  window.onerror = function (m) { showErr(m); return false; };
+  window.addEventListener('unhandledrejection', function (e) { showErr(e && e.reason ? e.reason : e); });
 
   var lobby = document.getElementById('lobby');
   var gameEl = document.getElementById('game');
@@ -204,10 +215,16 @@
   }
 
   function connect() {
-    if (ws) { ws.onclose = null; try { ws.close(); } catch (e) {} }
+    if (ws) { ws.onclose = null; ws.onerror = null; try { ws.close(); } catch (e) {} }
     var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    ws = new WebSocket(proto + '//' + location.host + '/ws?room=' + encodeURIComponent(room));
+    var url = proto + '//' + location.host + '/ws?room=' + encodeURIComponent(room);
+    try {
+      ws = new WebSocket(url);
+    } catch (e) { showErr('Cannot create WebSocket: ' + e.message); return; }
+    ws.onerror = function () { showErr('WebSocket error — cannot reach server at ' + url); };
     ws.onopen = function () {
+      errbar.style.display = 'none';
+      toast('Connected! Entering room ' + room + '…');
       ws.send(JSON.stringify({ type: 'join', name: name }));
     };
     ws.onmessage = onMessage;
@@ -387,14 +404,13 @@
       room = (roomInput.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
       if (!room) { toast('Please enter a room code!'); roomInput.focus(); return; }
     }
-    // Save for reconnects and update URL so the link is shareable
     try { localStorage.setItem('cp_name', name); localStorage.setItem('cp_room', room); } catch (e) {}
     history.replaceState(null, '', '?room=' + room);
     connect();
   }
 
-  document.getElementById('createBtn').onclick = function () { enter('create'); };
-  document.getElementById('joinRoomBtn').onclick = function () { enter('join'); };
+  document.getElementById('createBtn').onclick = function () { toast('Creating room...'); enter('create'); };
+  document.getElementById('joinRoomBtn').onclick = function () { toast('Joining room...'); enter('join'); };
   roomInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') enter('join'); });
   nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') enter(urlRoom ? 'join' : 'create'); });
 
