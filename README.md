@@ -1,23 +1,24 @@
-# ♠ Hokm Online
+# ♠ Court Piece — Online Multiplayer Card Game
 
-**Hokm** (حکم — also known as *Court Piece* or *Rung*) is the classic Persian trick-taking card game. This project is a fully online, real-time **multiplayer** implementation with **built-in chat**, designed to be deployed on **Cloudflare Workers** (free tier friendly).
+A fully online, real-time **multiplayer** trick-taking card game with **built-in chat**, designed to be deployed on **Cloudflare Workers** (free tier friendly).
 
 ![Game](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange) ![Lang](https://img.shields.io/badge/language-JavaScript-yellow) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## 🎮 Features
 
-- 👥 **4-player online multiplayer** — join with a room code or shareable invite link
+- 🏠 **Create Room / Join Room** — start a new room with one click or join with a code
+- 👥 **4-player online multiplayer** — shareable invite link
 - 🔴 **Real-time gameplay** over WebSockets (Cloudflare Durable Objects — one instance per room)
 - 💬 **In-game chat** with all players
-- 🃏 **Full Hokm rules**:
-  - First Ace dealt in round 1 determines the **Hakem** (trump chooser)
-  - Hakem picks the trump suit from their first 5 cards
+- 🃏 **Full rules**:
+  - First Ace dealt in round 1 determines the **trump chooser**
+  - The chooser picks the trump suit from their first 5 cards
   - Follow-suit enforcement
   - 7 tricks wins the round
-  - **KOT** (7–0 shutout) = 2 match points
+  - **Shutout** (7–0) = 2 match points
   - First team to **7 match points** wins the game
-  - Hakem rotates to the next player when their team loses a round
-- 🔌 **Auto-reconnect** — refresh or drop connection and rejoin seamlessly
+  - Trump chooser rotates when their team loses a round
+- 🔌 **Auto-reconnect** — refresh or drop connection and rejoin the same seat
 - 🌐 **English UI**, mobile-friendly responsive layout
 - 🚫 **No build step** — plain JavaScript, no bundler required
 
@@ -65,10 +66,10 @@ Then open http://localhost:8787.
 
 ## 🕹️ How to Play
 
-1. Open the site, enter your name, and join (leave room code empty to create a new room).
+1. Open the site, enter your name, then **Create Room** (new game) or **Join Room** (with a code).
 2. Copy the **invite link** (top-right button) and share it with 3 friends.
 3. Once 4 players have joined, the game starts automatically.
-4. The first Ace dealt determines the **Hakem**, who chooses the trump suit.
+4. The first Ace dealt determines the trump chooser, who picks the trump suit.
 5. Players take turns playing one card; you must follow suit if you can.
 6. The highest card of the led suit wins the trick — unless trumped.
 7. First team to win **7 tricks** takes the round; **7 match points** wins the game.
@@ -80,7 +81,7 @@ Then open http://localhost:8787.
 ```
 ├── src/
 │   ├── index.js    # Worker entrypoint — assets + WebSocket routing
-│   └── room.js     # RoomDO — full Hokm game logic & chat
+│   └── room.js     # RoomDO — full game logic & chat
 ├── public/
 │   └── index.html  # Client UI (lobby, table, chat)
 ├── wrangler.toml   # Cloudflare config (Durable Objects binding)
