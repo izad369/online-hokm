@@ -135,7 +135,21 @@ export class RoomDO {
         sess.name = name;
         this.send(sess, { type: 'joined', seat });
         this.pushChat(null, name + ' joined as player ' + (seat + 1));
-        if (g.phase === 'waiting' && g.players.every(Boolean)) this.startRound();
+        // Keep the room in the lobby until the host presses Start Game.
+        break;
+      }
+      case 'start': {
+        if (g.phase !== 'waiting') break;
+        if (sess.seat !== 0) {
+          this.send(sess, { type: 'error', error: 'Only player 1 (host) can start the game.' });
+          break;
+        }
+        if (!g.players.every(Boolean)) {
+          this.send(sess, { type: 'error', error: 'Need 4 players before starting.' });
+          break;
+        }
+        this.pushChat(null, 'Game started by ' + g.players[0].name);
+        this.startRound();
         break;
       }
       case 'chat': {
