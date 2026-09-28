@@ -62,7 +62,14 @@ export class RoomDO {
     const server = pair[1];
 
     const sessionId = crypto.randomUUID();
-    this.state.acceptWebSocket(server);
+
+    // Use the standard Durable Objects WebSocket API here.
+    // The room code currently keeps its live state and listeners in memory,
+    // so the server-side socket must be accepted with server.accept().
+    // acceptWebSocket() is the Hibernation API and would bypass the
+    // addEventListener('message'/'close') handlers used below.
+    server.accept();
+
     this.sessions.set(sessionId, { ws: server, seat: -1, name: null });
 
     server.send(JSON.stringify({ type: 'welcome', sessionId }));
