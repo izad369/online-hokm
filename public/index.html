@@ -55,7 +55,13 @@
   .hcard.disabled { opacity: .4; cursor: not-allowed; }
 
   /* Sidebar: players + chat */
-  #sidebar { width: 300px; background: var(--panel); display: flex; flex-direction: column; }
+  #sidebar { width: 320px; background: var(--panel); display: flex; flex-direction: column; border-left: 1px solid #334155; }
+  #roomBar { display:flex; align-items:center; justify-content:space-between; gap:8px; background:#0f172a; border:1px solid #334155; border-radius:10px; padding:8px 10px; }
+  #roomCode { font-weight:800; letter-spacing:2px; color:var(--accent); }
+  #startBtn { padding:10px 16px; border:0; border-radius:9px; background:var(--accent); color:#052e16; font-weight:800; cursor:pointer; }
+  #startBtn:disabled { opacity:.45; cursor:not-allowed; }
+  #chatToggle { display:none; padding:8px 12px; border:0; border-radius:8px; background:#334155; color:var(--text); font-weight:700; cursor:pointer; }
+  #chatPanelTitle { padding:10px 12px; border-bottom:1px solid #334155; font-weight:800; }
   #playerList { padding: 12px; border-bottom: 1px solid #334155; }
   #playerList .pl { padding: 6px 0; font-size: .95rem; }
   #chat { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -78,7 +84,11 @@
   #errbar { display: none; position: fixed; top: 0; left: 0; right: 0; background: #7f1d1d; color: #fff; padding: 10px; font-size: .85rem; z-index: 99; word-break: break-all; }
 
   @media (max-width: 800px) {
-    #sidebar { display: none; }
+    #chatToggle { display:block; }
+    #sidebar { position:fixed; z-index:30; right:0; top:0; bottom:0; width:min(340px,92vw); transform:translateX(100%); transition:transform .2s ease; box-shadow:-12px 0 30px rgba(0,0,0,.35); }
+    #sidebar.open { display:flex; transform:translateX(0); }
+    #table { padding:8px; }
+    .board { min-height:260px; }
     .hcard { font-size: .9rem; padding: 8px; }
   }
 </style>
@@ -113,10 +123,13 @@
       </div>
       <div id="trumpBadge">Trump: —</div>
       <div style="display:flex;gap:8px;">
+        <button id="chatToggle">💬 Chat</button>
         <button id="inviteBtn">📋 Invite</button>
         <button id="leaveBtn">🚪 Leave</button>
       </div>
     </header>
+
+    <div id="roomBar"><span>Room: <span id="roomCode">—</span></span><button id="startBtn" disabled>▶ Start Game</button></div>
 
     <div class="board">
       <div class="seat seat-0" id="seat0"><div class="pname">—</div><div class="meta"></div><div class="played-card"></div></div>
@@ -132,6 +145,7 @@
   <aside id="sidebar">
     <div id="playerList"></div>
     <div id="chat">
+      <div id="chatPanelTitle">💬 Room Chat</div>
       <div id="chatLog"></div>
       <form id="chatForm">
         <input id="chatInput" placeholder="Type a message…" maxlength="300" autocomplete="off">
@@ -278,6 +292,12 @@
       'Round ' + state.roundNo + ' — Tricks: ' + state.roundWins[0] + ' : ' + state.roundWins[1];
     document.getElementById('trumpBadge').textContent = 'Trump: ' + (state.trumpSuit || '—');
 
+    document.getElementById('roomCode').textContent = room || '—';
+    var startBtn = document.getElementById('startBtn');
+    var ready = state.phase === 'waiting' && state.players && state.players.every(Boolean);
+    startBtn.disabled = !ready || mySeat !== 0;
+    startBtn.textContent = ready ? '▶ Start Game' : '⏳ Waiting for 4 players';
+
     // Seats
     for (var i = 0; i < 4; i++) {
       var el = document.getElementById('seat' + i);
@@ -374,6 +394,14 @@
       ws.send(JSON.stringify({ type: 'chooseTrump', suit: b.getAttribute('data-suit') }));
     };
   });
+
+  document.getElementById('startBtn').onclick = function () {
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'start' }));
+  };
+
+  document.getElementById('chatToggle').onclick = function () {
+    document.getElementById('sidebar').classList.toggle('open');
+  };
 
   document.getElementById('restartBtn').onclick = function () {
     ws.send(JSON.stringify({ type: 'restart' }));
