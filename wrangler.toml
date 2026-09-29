@@ -4,15 +4,10 @@ compatibility_date = "2026-09-25"
 
 [durable_objects]
 bindings = [
-  { name = "ROOM", class_name = "RoomDO" },
-  { name = "MATCH", class_name = "MatchDO" }
+  { name = "ROOM", class_name = "RoomDO" }
 ]
 
 [exports.RoomDO]
-type = "durable-object"
-storage = "sqlite"
-
-[exports.MatchDO]
 type = "durable-object"
 storage = "sqlite"
 
