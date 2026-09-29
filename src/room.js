@@ -1,11 +1,12 @@
 // Court Piece game logic — Cloudflare Durable Object, one instance per room.
+// Uses the Hibernation WebSocket API: acceptWebSocket() + webSocketMessage handlers.
 // Rules:
 //  - 4 players, 2 teams (seats 0/2 vs 1/3)
 //  - Round 1: first Ace dealt determines the Caller (trump chooser)
 //  - Subsequent rounds: previous Caller keeps role if their team wins, else passes to next player
 //  - Caller picks trump from first 5 cards dealt to them; then all players get 13 cards
 //  - Follow suit enforced; highest card of led suit wins unless trumped
-//  - 7 tricks wins the round; KOT (7-0) is worth 2 match points
+//  - 7 tricks wins the round; shutout (7-0) is worth 2 match points
 //  - First team to 7 match points wins the game
 
 const SUITS = ['♠', '♥', '♦', '♣'];
@@ -30,11 +31,8 @@ export class RoomDO {
   constructor(state, env) {
     this.state = state;
     this.env = env;
-    this.sessions = new Map();   // sessionId -> { ws, seat }
+    this.sessions = new Map();   // sessionId -> { ws, seat, name }
     this.game = this.newGame();
-    this.publicGame = null;
-    this.publicState = null;
-    this.publicQueue = [];
   }
 
   newGame() {
@@ -44,14 +42,14 @@ export class RoomDO {
       caller: -1,
       trumpSuit: null,
       hands: [[], [], [], []],
-      scores: [0, 0],           // match points per team
-      roundWins: [0, 0],        // tricks this round per team
-      trick: [],                // { seat, card }
+      scores: [0, 0],
+      roundWins: [0, 0],
+      trick: [],
       leader: 0,
       turn: 0,
-      firstAceReveal: null,     // { seat, card } during round-1 dealing
+      firstAceReveal: null,
       roundNo: 0,
-      messages: [],             // chat history
+      messages: [],
       winner: -1,
     };
   }
@@ -60,50 +58,38 @@ export class RoomDO {
     if (request.headers.get('Upgrade') !== 'websocket') {
       return new Response('Expected WebSocket', { status: 400 });
     }
-    const url = new URL(request.url);
-    const pg = url.searchParams.get('publicGame');
-    if (pg === 'ttt' || pg === 'connect4') this.publicGame = pg;
     const pair = new WebSocketPair();
     const client = pair[0];
     const server = pair[1];
 
     const sessionId = crypto.randomUUID();
-
-    // Use the standard Durable Objects WebSocket API here.
-    // The room code currently keeps its live state and listeners in memory,
-    // so the server-side socket must be accepted with server.accept().
-    // acceptWebSocket() is the Hibernation API and would bypass the
-    // addEventListener('message'/'close') handlers used below.
-    server.accept();
-
-    this.sessions.set(sessionId, { ws: server, seat: -1, name: null, publicGame: this.publicGame, publicPlayer: -1 });
+    this.state.acceptWebSocket(server);   // Hibernation API: messages arrive via webSocketMessage()
+    server.sessionId = sessionId;
+    this.sessions.set(sessionId, { ws: server, seat: -1, name: null });
 
     server.send(JSON.stringify({ type: 'welcome', sessionId }));
-
-    server.addEventListener('message', (ev) => {
-      let msg;
-      try { msg = JSON.parse(ev.data); } catch { return; }
-      try { this.handle(sessionId, msg); } catch (e) { /* keep room alive */ }
-    });
-
-    server.addEventListener('close', () => this.onClose(sessionId));
-    server.addEventListener('error', () => this.onClose(sessionId));
+    this.broadcastState();
 
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  publicSend(id,obj){const s=this.sessions.get(id);try{s?.ws.send(JSON.stringify(obj))}catch{}}
-  publicBroadcast(obj){const d=JSON.stringify(obj);for(const s of this.sessions.values())if(s.publicGame===this.publicGame)try{s.ws.send(d)}catch{}}
-  publicNew(){return {game:this.publicGame,board:this.publicGame==='ttt'?Array(9).fill(''):Array(42).fill(''),turn:0,players:[],over:false,winner:null,messages:[]}}
-  tttWin(b){const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(const x of L)if(b[x[0]]&&b[x[0]]===b[x[1]]&&b[x[1]]===b[x[2]])return b[x[0]];return b.every(Boolean)?'draw':null}
-  c4Win(b){for(let r=0;r<6;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i+1]&&v===b[i+2]&&v===b[i+3])return v}for(let c=0;c<7;c++)for(let r=0;r<3;r++){let i=r*7+c,v=b[i];if(v&&v===b[i+7]&&v===b[i+14]&&v===b[i+21])return v}for(let r=0;r<3;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i+8]&&v===b[i+16]&&v===b[i+24])return v}for(let r=3;r<6;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i-6]&&v===b[i-12]&&v===b[i-18])return v}return b.every(Boolean)?'draw':null}
-  publicStateSend(){if(this.publicState)this.publicBroadcast({type:'state',...this.publicState})}
-  handlePublic(id,msg){const s=this.sessions.get(id);if(!s)return;if(msg.type==='find'){s.name=String(msg.name||'Player').slice(0,20);this.publicQueue=this.publicQueue.filter(x=>this.sessions.has(x));const mate=this.publicQueue.find(x=>x!==id);if(!mate){if(!this.publicQueue.includes(id))this.publicQueue.push(id);this.publicSend(id,{type:'queued',game:this.publicGame});return}this.publicQueue=this.publicQueue.filter(x=>x!==mate&&x!==id);this.publicState=this.publicNew();this.publicState.players=[this.sessions.get(mate)?.name||'Player',s.name];this.sessions.get(mate).publicPlayer=0;s.publicPlayer=1;this.publicSend(mate,{type:'matched',game:this.publicGame,player:0});this.publicSend(id,{type:'matched',game:this.publicGame,player:1});this.publicStateSend();return}if(msg.type==='chat'&&this.publicState){const text=String(msg.text||'').slice(0,300).trim();if(!text)return;this.publicState.messages.push({from:s.name||'Player',text});if(this.publicState.messages.length>60)this.publicState.messages.shift();this.publicStateSend();return}if(msg.type==='move'&&this.publicState&&!this.publicState.over){const p=s.publicPlayer;if(p!==this.publicState.turn)return;const mark=p===0?'X':'O';if(this.publicGame==='ttt'){const i=Number(msg.i);if(!Number.isInteger(i)||i<0||i>8||this.publicState.board[i])return;this.publicState.board[i]=mark;this.publicState.winner=this.tttWin(this.publicState.board)}else{const c=Number(msg.c);if(!Number.isInteger(c)||c<0||c>6)return;let row=-1;for(let r=5;r>=0;r--)if(!this.publicState.board[r*7+c]){row=r;break}if(row<0)return;this.publicState.board[row*7+c]=mark;this.publicState.winner=this.c4Win(this.publicState.board)}if(this.publicState.winner)this.publicState.over=true;else this.publicState.turn=1-this.publicState.turn;this.publicStateSend();return}if(msg.type==='rematch'&&this.publicState&&this.publicState.players.length===2){const names=this.publicState.players;this.publicState=this.publicNew();this.publicState.players=names;this.publicStateSend()}}
-  publicLeave(id){this.publicQueue=this.publicQueue.filter(x=>x!==id);if(this.publicState&&this.publicState.players.length===2&&!this.publicState.over){this.publicState.over=true;this.publicState.winner=this.sessions.get(id)?.publicPlayer===0?'O':'X';this.publicStateSend()}}
+  // --- Hibernation API handlers (this is how messages actually arrive) ---
+  async webSocketMessage(ws, data) {
+    let msg;
+    try { msg = JSON.parse(data); } catch { return; }
+    try { this.handle(ws.sessionId, msg); } catch (e) { /* keep room alive */ }
+  }
+
+  async webSocketClose(ws) {
+    this.onClose(ws.sessionId);
+  }
+
+  async webSocketError(ws) {
+    this.onClose(ws.sessionId);
+  }
 
   onClose(sessionId) {
     const sess = this.sessions.get(sessionId);
-    if(sess?.publicGame){this.publicLeave(sessionId);this.sessions.delete(sessionId);return;}
     if (sess && sess.seat >= 0 && this.game.players[sess.seat]) {
       this.pushChat(null, this.game.players[sess.seat].name + ' disconnected (seat kept for rejoin)');
     }
@@ -123,7 +109,6 @@ export class RoomDO {
   handle(sessionId, msg) {
     const sess = this.sessions.get(sessionId);
     if (!sess) return;
-    if (sess.publicGame) { this.handlePublic(sessionId, msg); return; }
     const g = this.game;
 
     switch (msg.type) {
@@ -152,21 +137,7 @@ export class RoomDO {
         sess.name = name;
         this.send(sess, { type: 'joined', seat });
         this.pushChat(null, name + ' joined as player ' + (seat + 1));
-        // Keep the room in the lobby until the host presses Start Game.
-        break;
-      }
-      case 'start': {
-        if (g.phase !== 'waiting') break;
-        if (sess.seat !== 0) {
-          this.send(sess, { type: 'error', error: 'Only player 1 (host) can start the game.' });
-          break;
-        }
-        if (!g.players.every(Boolean)) {
-          this.send(sess, { type: 'error', error: 'Need 4 players before starting.' });
-          break;
-        }
-        this.pushChat(null, 'Game started by ' + g.players[0].name);
-        this.startRound();
+        if (g.phase === 'waiting' && g.players.every(Boolean)) this.startRound();
         break;
       }
       case 'chat': {
@@ -196,6 +167,7 @@ export class RoomDO {
         if (g.trick.length === 4) {
           const winner = this.trickWinner(g.trick, g.trumpSuit);
           g.roundWins[winner % 2]++;
+          this.sendAll({ type: 'trickWon', seat: winner });
           g.trick = [];
           g.turn = winner;
           g.leader = winner;
