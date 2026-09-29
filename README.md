@@ -52,7 +52,8 @@ npx wrangler login
 npm run deploy
 ```
 
-Wrangler will print your live URL, e.g. `https://online-hokm.<your-subdomain>.workers.dev`.
+Wrangler will print your liv
+e URL, e.g. `https://online-hokm.<your-subdomain>.workers.dev`.
 
 > **Note:** Durable Objects (including WebSocket support) are available on the Workers **free tier** — no paid plan needed.
 
@@ -91,3 +92,5 @@ Then open http://localhost:8787.
 ## 📄 License
 
 [MIT](LICENSE)
+
+<!-- deploy-trigger: 2026-09-29 rebuild -->
