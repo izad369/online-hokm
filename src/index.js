@@ -12,7 +12,8 @@ export default {
 
     // WebSocket endpoint: /ws?room=CODE
     if (url.pathname === '/ws' && request.headers.get('Upgrade') === 'websocket') {
-      const room = (url.searchParams.get('room') || 'LOBBY').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || 'LOBBY';
+      const publicGame=url.searchParams.get('publicGame');
+      const room=publicGame==='ttt'?'PUBTTT':publicGame==='connect4'?'PUBC4':(url.searchParams.get('room') || 'LOBBY').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || 'LOBBY';
       const id = env.ROOM.idFromName(room);
       const stub = env.ROOM.get(id);
       return stub.fetch(request);
