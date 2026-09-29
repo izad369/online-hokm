@@ -29,7 +29,8 @@
   #game { display: flex; height: 100vh; }
   #table { flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 8px; min-width: 0; }
   header { display: flex; justify-content: space-between; align-items: center; background: var(--panel); border-radius: 12px; padding: 10px 16px; gap: 12px; flex-wrap: wrap; }
-  .score { font-size: 1rem; }
+  .score { f
+ont-size: 1rem; }
   .score b { color: var(--accent); }
   .rounds { font-size: .85rem; color: var(--muted); }
   #trumpBadge { padding: 4px 12px; border-radius: 999px; background: #334155; font-weight: 700; white-space: nowrap; }
@@ -56,7 +57,8 @@
 
   /* Sidebar: players + chat */
   #sidebar { width: 320px; background: var(--panel); display: flex; flex-direction: column; border-left: 1px solid #334155; }
-  #roomBar { display:flex; align-items:center; justify-content:space-between; gap:8px; background:#0f172a; border:1px solid #334155; border-radius:10px; padding:8px 10px; }
+  #roomBar { display:flex; align-items:c
+enter; justify-content:space-between; gap:8px; background:#0f172a; border:1px solid #334155; border-radius:10px; padding:8px 10px; }
   #roomCode { font-weight:800; letter-spacing:2px; color:var(--accent); }
   #startBtn { padding:10px 16px; border:0; border-radius:9px; background:var(--accent); color:#052e16; font-weight:800; cursor:pointer; }
   #startBtn:disabled { opacity:.45; cursor:not-allowed; }
@@ -78,7 +80,8 @@
   .overlay h2 { margin-bottom: 12px; }
   .overlay button { padding: 10px 24px; border: none; border-radius: 8px; background: var(--accent); font-weight: 700; cursor: pointer; font-size: 1.05rem; }
   .suit-pick { display: flex; gap: 16px; justify-content: center; margin: 16px 0; }
-  .suit-pick button { font-size: 2rem; background: #334155; color: var(--text); padding: 12px 20px; }
+  .suit-pick button { font-size: 2rem; background: #334
+155; color: var(--text); padding: 12px 20px; }
   #toast { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); background: #334155; padding: 10px 20px; border-radius: 999px; font-size: .9rem; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 20; max-width: 90%; text-align: center; }
   #toast.show { opacity: 1; }
   #errbar { display: none; position: fixed; top: 0; left: 0; right: 0; background: #7f1d1d; color: #fff; padding: 10px; font-size: .85rem; z-index: 99; word-break: break-all; }
@@ -92,10 +95,11 @@
     .hcard { font-size: .9rem; padding: 8px; }
   }
 </style>
-<style>.hub{max-width:900px;margin:0 auto;padding:28px 18px}.hub h1{text-align:center;color:#22c55e;font-size:2.4rem}.hub p{text-align:center;color:#94a3b8}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:22px}.hcardx{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:18px;text-align:center}.hcardx button{width:100%;margin-top:8px;padding:11px;border:0;border-radius:9px;background:#22c55e;font-weight:800;cursor:pointer}.hcardx .secondary{background:#334155;color:#e2e8f0}.offline{max-width:700px;margin:20px auto;padding:18px}.offline .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;margin:18px auto}.offline .cell{aspect-ratio:1;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:12px;font-size:2.3rem;font-weight:900}.offline .c4{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-width:500px;margin:18px auto}.offline .c4 .cell{border-radius:50%;font-size:1rem}.backhub{padding:9px 14px;border:0;border-radius:9px;background:#334155;color:#e2e8f0}</style></head>
+<style>.hub{max-width:900px;margin:0 auto;padding:28px 18px}.hub h1{text-align:center;color:#22c55e;font-size:2.4rem}.hub p{text-align:center;color:#94a3b8}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:22px}.hcardx{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:18px;text-align:center}.hcardx button{width:100%;margin-top:8px;padding:11px;border:0;border-radius:9px;background:#22c55e;font-weight:800;cursor:pointer}.hcardx .secondary{background:#334155;color:#e2e8f0}.offline{max-width:700px;margin:20px auto;padding:18px}.offline .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;margin:18px auto}.offline .cell{aspect-ratio:1;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:12px;font-size:2.3rem;font-weight:900}.offline .c4{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-width:500px;margin:18px auto}.offline .c4 .cell{border-radius:50%;font-size:1rem}.backhub{padding:9px 14px;border
+:0;border-radius:9px;background:#334155;color:#e2e8f0}</style></head>
 <body>
 
-<section id="hub" class="hub"><h1>🃏 Card Game Hub</h1><p>بازی‌های مختلف، آفلاین با بات و آنلاین</p><input id="hubName" placeholder="نام شما" maxlength="20" style="display:block;width:100%;max-width:420px;margin:18px auto;padding:12px;border-radius:9px;border:1px solid #334155;background:#0f172a;color:#e2e8f0"><div class="cards"><article class="hcardx"><h2>♠ حکم</h2><p>۴ بازیکن</p><button data-hub="private">🔒 روم خصوصی</button><button class="secondary" data-hub="offline-hokm">🤖 آفلاین با بات</button></article><article class="hcardx"><h2>⭕ دوز</h2><p>۲ بازیکن</p><button data-hub="public-ttt">🌐 آنلاین عمومی</button><button class="secondary" data-hub="offline-ttt">🤖 آفلاین با بات</button></article><article class="hcardx"><h2>🔴 چهار در یک ردیف</h2><p>۲ بازیکن</p><button data-hub="public-c4">🌐 آنلاین عمومی</button><button class="secondary" data-hub="offline-c4">🤖 آفلاین با بات</button></article></div></section><section id="offline" class="offline hidden"></section><!-- Lobby -->
+<section id="hub" class="hub"><h1>🃏 Card Game Hub</h1><p>Various games — offline vs bot and online</p><input id="hubName" placeholder="Your name" maxlength="20" style="display:block;width:100%;max-width:420px;margin:18px auto;padding:12px;border-radius:9px;border:1px solid #334155;background:#0f172a;color:#e2e8f0"><div class="cards"><article class="hcardx"><h2>♠ Court Piece</h2><p>4 players</p><button data-hub="private">🔒 Private Room</button><button class="secondary" data-hub="offline-hokm">🤖 Offline vs Bot</button></article><article class="hcardx"><h2>⭕ Tic-Tac-Toe</h2><p>2 players</p><button data-hub="public-ttt">🌐 Public Online</button><button class="secondary" data-hub="offline-ttt">🤖 Offline vs Bot</button></article><article class="hcardx"><h2>🔴 Connect Four</h2><p>2 players</p><button data-hub="public-c4">🌐 Public Online</button><button class="secondary" data-hub="offline-c4">🤖 Offline vs Bot</button></article></div></section><section id="offline" class="offline hidden"></section><!-- Lobby -->
 <div id="lobby">
   <h1>♠ Court Piece</h1>
   <p class="sub">Online multiplayer trick-taking card game — play with friends in real time.</p>
@@ -119,7 +123,8 @@
     <header>
       <div>
         <div class="score">Score — Team A: <b id="scoreA">0</b> | Team B: <b id="scoreB">0</b></div>
-        <div class="rounds" id="roundInfo">Round 1 — Tricks: 0 : 0</div>
+        <div class="r
+ounds" id="roundInfo">Round 1 — Tricks: 0 : 0</div>
       </div>
       <div id="trumpBadge">Trump: —</div>
       <div style="display:flex;gap:8px;">
@@ -170,7 +175,8 @@
 </div>
 
 <!-- Round end / game over overlay -->
-<div id="endOverlay" class="overlay hidden">
+<div
+ id="endOverlay" class="overlay hidden">
   <div class="box">
     <h2 id="endTitle"></h2>
     <p id="endText"></p>
@@ -229,7 +235,8 @@
   }
 
   function connect() {
-    if (ws) { ws.onclose = null; ws.onerror = null; try { ws.close(); } catch (e) {} }
+    if (ws) { ws.onclose = null; ws.on
+error = null; try { ws.close(); } catch (e) {} }
     var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     var url = proto + '//' + location.host + '/ws?room=' + encodeURIComponent(room);
     try {
@@ -277,7 +284,8 @@
   }
 
   function showEnd(text, gameOver) {
-    endTitle.textContent = gameOver ? 'Game Over' : 'Round Over';
+    endTitle.textContent = gameOver ? 'Game Over' : 
+'Round Over';
     endText.textContent = text;
     endOverlay.classList.remove('hidden');
     if (!gameOver) setTimeout(hideEnd, 2800);
@@ -320,7 +328,8 @@
       var tc = null;
       if (state.trick) {
         for (var j = 0; j < state.trick.length; j++) {
-          if (state.trick[j].seat === i) { tc = state.trick[j].card; break; }
+          if (state.trick
+[j].seat === i) { tc = state.trick[j].card; break; }
         }
       }
       if (tc) {
@@ -371,7 +380,8 @@
       playerListEl.appendChild(d);
     });
 
-    // Restart button only when game over
+    // Res
+tart button only when game over
     document.getElementById('restartBtn').style.display = state.phase === 'gameOver' ? '' : 'none';
 
     renderChat(state.messages || []);
@@ -426,7 +436,8 @@
   function enter(mode) {
     name = (nameInput.value || '').trim();
     if (!name) { toast('Please enter your name first!'); nameInput.focus(); return; }
-    if (mode === 'create') {
+    if (mod
+e === 'create') {
       room = randomCode();
     } else {
       room = (roomInput.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -465,5 +476,8 @@
   });
 })();
 </script>
-<script>(function(){const hub=document.getElementById('hub'),off=document.getElementById('offline'),lobby=document.getElementById('lobby');if(new URLSearchParams(location.search).get('room'))hub.classList.add('hidden');else lobby.classList.add('hidden');const nameEl=document.getElementById('hubName');function back(){off.classList.add('hidden');off.innerHTML='';hub.classList.remove('hidden')}function ttt(){hub.classList.add('hidden');off.classList.remove('hidden');let b=Array(9).fill(''),over=false;off.innerHTML='<button class="backhub">← بازگشت</button><h2 style="text-align:center;margin:16px">دوز — آفلاین با بات</h2><p id="os" style="text-align:center;color:#94a3b8">نوبت شما</p><div class="grid">'+b.map((_,i)=>'<button class="cell" data-i="'+i+'"></button>').join('')+'</div>';off.querySelector('.backhub').onclick=back;const st=off.querySelector('#os');const win=()=>{const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];const x=L.find(a=>b[a[0]]&&b[a[0]]===b[a[1]]&&b[a[1]]===b[a[2]]);return x?b[x[0]]:b.every(Boolean)?'draw':null};const render=()=>off.querySelectorAll('.cell').forEach((c,i)=>c.textContent=b[i]);const bot=()=>{const f=b.map((v,i)=>v?'':i).filter(v=>v!=='');if(f.length)b[f[Math.floor(Math.random()*f.length)]]='O';render()};off.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{const i=+c.dataset.i;if(over||b[i])return;b[i]='X';render();let w=win();if(w){over=true;st.textContent=w==='draw'?'مساوی شد!':w==='X'?'بردی!':'بات برد';return}st.textContent='نوبت بات…';setTimeout(()=>{if(over)return;bot();let w2=win();if(w2){over=true;st.textContent=w2==='draw'?'مساوی شد!':'بات برد'}else st.textContent='نوبت شما'},300)})}function c4(){hub.classList.add('hidden');off.classList.remove('hidden');let b=Array(42).fill(''),over=false;off.innerHTML='<button class="backhub">← بازگشت</button><h2 style="text-align:center;margin:16px">چهار در یک ردیف — آفلاین با بات</h2><p id="os" style="text-align:center;color:#94a3b8">نوبت شما</p><div class="c4">'+b.map((_,i)=>'<button class="cell" data-i="'+i+'"></button>').join('')+'</div>';off.querySelector('.backhub').onclick=back;const st=off.querySelector('#os');const win=()=>{for(let r=0;r<6;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i+1]&&v===b[i+2]&&v===b[i+3])return v}for(let c=0;c<7;c++)for(let r=0;r<3;r++){let i=r*7+c,v=b[i];if(v&&v===b[i+7]&&v===b[i+14]&&v===b[i+21])return v}for(let r=0;r<3;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i+8]&&v===b[i+16]&&v===b[i+24])return v}for(let r=3;r<6;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i-6]&&v===b[i-12]&&v===b[i-18])return v}return b.every(Boolean)?'draw':null};const drop=c=>{for(let r=5;r>=0;r--){let i=r*7+c;if(!b[i])return i}return -1};const render=()=>off.querySelectorAll('.cell').forEach((c,i)=>c.textContent=b[i]);off.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{if(over)return;let i=drop(+c.dataset.i);if(i<0)return;b[i]='X';render();let w=win();if(w){over=true;st.textContent=w==='draw'?'مساوی شد!':'بردی!';return}st.textContent='نوبت بات…';setTimeout(()=>{let cols=[0,1,2,3,4,5,6].filter(c=>drop(c)>=0);let col=cols[Math.floor(Math.random()*cols.length)],j=drop(col);if(j>=0)b[j]='O';render();let w2=win();if(w2){over=true;st.textContent=w2==='draw'?'مساوی شد!':'بات برد'}else st.textContent='نوبت شما'},300)})}function pub(game){hub.classList.add('hidden');off.classList.remove('hidden');const n=(nameEl.value||'Player').trim()||'Player';off.innerHTML='<button class="backhub">← بازگشت</button><h2 style="text-align:center;margin:16px">آنلاین عمومی</h2><p id="os" style="text-align:center;color:#94a3b8">در حال پیدا کردن بازیکن…</p><div id="ob"></div><div style="margin-top:14px;background:#1e293b;padding:10px;border-radius:12px"><div id="ol" style="height:130px;overflow:auto"></div><form><input placeholder="پیام…" maxlength="300" style="width:72%;padding:9px;background:#0f172a;color:#fff;border:1px solid #334155;border-radius:8px"><button>ارسال</button></form></div>';off.querySelector('.backhub').onclick=back;const p=location.protocol==='https:'?'wss:':'ws:',w=new WebSocket(p+'//'+location.host+'/ws?publicGame='+game),st=off.querySelector('#os'),board=off.querySelector('#ob'),log=off.querySelector('#ol');let me=-1,cur=null;w.onopen=()=>w.send(JSON.stringify({type:'find',name:n}));off.querySelector('form').onsubmit=e=>{e.preventDefault();let x=e.target.querySelector('input');if(x.value.trim())w.send(JSON.stringify({type:'chat',text:x.value.trim()}));x.value=''};w.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==='queued')st.textContent='در صف پیدا کردن بازیکن…';if(m.type==='matched'){me=m.player;st.textContent='حریف پیدا شد!'}if(m.type==='chat'){log.innerHTML=m.messages.map(x=>'<div>'+x.from+': '+x.text+'</div>').join('');log.scrollTop=log.scrollHeight}if(m.type==='state'){cur=m;render()}};function render(){if(!cur)return;const mark=me===0?'X':'O';if(game==='ttt'){board.innerHTML='<div class="grid">'+cur.board.map((v,i)=>'<button class="cell" data-i="'+i+'">'+v+'</button>').join('')+'</div>';board.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{if(!cur.over&&cur.turn===me&&!cur.board[+c.dataset.i])w.send(JSON.stringify({type:'move',i:+c.dataset.i}))})}else{board.innerHTML='<div class="c4">'+cur.board.map((v,i)=>'<button class="cell" data-i="'+i+'">'+v+'</button>').join('')+'</div>';board.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{if(!cur.over&&cur.turn===me)w.send(JSON.stringify({type:'move',c:+c.dataset.i%7}))})}if(cur.over)st.textContent=cur.winner==='draw'?'مساوی شد!':cur.winner===mark?'بردی!':'حریف برد!';else st.textContent=cur.turn===me?'نوبت شما':'نوبت حریف'}}function hokm(){hub.classList.add('hidden');lobby.classList.remove('hidden')}document.querySelectorAll('[data-hub]').forEach(b=>b.onclick=()=>{const a=b.dataset.hub;if(a==='private'||a==='offline-hokm')hokm();else if(a==='offline-ttt')ttt();else if(a==='offline-c4')c4();else if(a==='public-ttt')pub('ttt');else pub('connect4')})})();</script></body>
+<script>(function(){const hub=document.getElementById('hub'),off=document.getElementById('offline'),lobby=document.getElementById('lobby');if(new URLSearchParams(location.search).get('room'))hub.classList.add('hidden');else lobby.classList.add('hidden');const nameEl=document.getElementById('hubName');function back(){off.classList.add('hidden');off.innerHTML='';hub.classList.remove('hidden')}function ttt(){hub.classList.add('hidden');off.classList.remove('hidden');let b=Array(9).fill(''),over=false;off.innerHTML='<butt
+on class="backhub">← Back</button><h2 style="text-align:center;margin:16px">Tic-Tac-Toe — Offline vs Bot</h2><p id="os" style="text-align:center;color:#94a3b8">Your turn</p><div class="grid">'+b.map((_,i)=>'<button class="cell" data-i="'+i+'"></button>').join('')+'</div>';off.querySelector('.backhub').onclick=back;const st=off.querySelector('#os');const win=()=>{const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];const x=L.find(a=>b[a[0]]&&b[a[0]]===b[a[1]]&&b[a[1]]===b[a[2]]);return x?b[x[0]]:b.every(Boolean)?'draw':null};const render=()=>off.querySelectorAll('.cell').forEach((c,i)=>c.textContent=b[i]);const bot=()=>{const f=b.map((v,i)=>v?'':i).filter(v=>v!=='');if(f.length)b[f[Math.floor(Math.random()*f.length)]]='O';render()};off.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{const i=+c.dataset.i;if(over||b[i])return;b[i]='X';render();let w=win();if(w){over=true;st.textContent=w==='draw'?'It's a draw!':w==='X'?'You win!':'Bot wins';return}st.textContent='Bot's turn…';setTimeout(()=>{if(over)return;bot();let w2=win();if(w2){over=true;st.textContent=w2==='draw'?'It's a draw!':'Bot wins'}else st.textContent='Your turn'},300)})}function c4(){hub.classList.add('hidden');off.classList.remove('hidden');let b=Array(42).fill(''),over=false;off.innerHTML='<button class="backhub">← Back</button><h2 style="text-align:center;margin:16px">Connect Four — Offline vs Bot</h2><p id="os" style="text-align:center;color:#94a3b8">Your turn</p><div class="c4">'+b.map((_,i)=>'<button class="cell" data-i="'+i+'"></button>').join('')+'</div>';off.querySelector('.backhub').onclick=back;const st=off.querySelector('#os');const win=()=>{for(let r=0;r<6;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i+1]&&v===b[i+2]&&v===b[i+3])return v}for(let c=0;c<7;c++)for(let r=0;r<3;r++){let i=r*7+c,v=b[i];if(v&&v===b[i+7]&&v===b[i+14]&&v===b[i+21])return v}for(let r=0;r<3;r++)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i+8]&&v===b[i+16]&&v===b[i+24])return v}for(let r=3;r<6;r++
+)for(let c=0;c<4;c++){let i=r*7+c,v=b[i];if(v&&v===b[i-6]&&v===b[i-12]&&v===b[i-18])return v}return b.every(Boolean)?'draw':null};const drop=c=>{for(let r=5;r>=0;r--){let i=r*7+c;if(!b[i])return i}return -1};const render=()=>off.querySelectorAll('.cell').forEach((c,i)=>c.textContent=b[i]);off.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{if(over)return;let i=drop(+c.dataset.i);if(i<0)return;b[i]='X';render();let w=win();if(w){over=true;st.textContent=w==='draw'?'It's a draw!':'You win!';return}st.textContent='Bot's turn…';setTimeout(()=>{let cols=[0,1,2,3,4,5,6].filter(c=>drop(c)>=0);let col=cols[Math.floor(Math.random()*cols.length)],j=drop(col);if(j>=0)b[j]='O';render();let w2=win();if(w2){over=true;st.textContent=w2==='draw'?'It's a draw!':'Bot wins'}else st.textContent='Your turn'},300)})}function pub(game){hub.classList.add('hidden');off.classList.remove('hidden');const n=(nameEl.value||'Player').trim()||'Player';off.innerHTML='<button class="backhub">← Back</button><h2 style="text-align:center;margin:16px">Public Online</h2><p id="os" style="text-align:center;color:#94a3b8">Finding a player…</p><div id="ob"></div><div style="margin-top:14px;background:#1e293b;padding:10px;border-radius:12px"><div id="ol" style="height:130px;overflow:auto"></div><form><input placeholder="Message…" maxlength="300" style="width:72%;padding:9px;background:#0f172a;color:#fff;border:1px solid #334155;border-radius:8px"><button>Send</button></form></div>';off.querySelector('.backhub').onclick=back;const p=location.protocol==='https:'?'wss:':'ws:',w=new WebSocket(p+'//'+location.host+'/ws?publicGame='+game),st=off.querySelector('#os'),board=off.querySelector('#ob'),log=off.querySelector('#ol');let me=-1,cur=null;w.onopen=()=>w.send(JSON.stringify({type:'find',name:n}));off.querySelector('form').onsubmit=e=>{e.preventDefault();let x=e.target.querySelector('input');if(x.value.trim())w.send(JSON.stringify({type:'chat',text:x.value.trim()}));x.value=''};w.onmessage=e=>{let m=JSON.parse(e.d
+ata);if(m.type==='queued')st.textContent='Waiting in queue to find a player…';if(m.type==='matched'){me=m.player;st.textContent='Opponent found!'}if(m.type==='chat'){log.innerHTML=m.messages.map(x=>'<div>'+x.from+': '+x.text+'</div>').join('');log.scrollTop=log.scrollHeight}if(m.type==='state'){cur=m;render()}};function render(){if(!cur)return;const mark=me===0?'X':'O';if(game==='ttt'){board.innerHTML='<div class="grid">'+cur.board.map((v,i)=>'<button class="cell" data-i="'+i+'">'+v+'</button>').join('')+'</div>';board.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{if(!cur.over&&cur.turn===me&&!cur.board[+c.dataset.i])w.send(JSON.stringify({type:'move',i:+c.dataset.i}))})}else{board.innerHTML='<div class="c4">'+cur.board.map((v,i)=>'<button class="cell" data-i="'+i+'">'+v+'</button>').join('')+'</div>';board.querySelectorAll('.cell').forEach(c=>c.onclick=()=>{if(!cur.over&&cur.turn===me)w.send(JSON.stringify({type:'move',c:+c.dataset.i%7}))})}if(cur.over)st.textContent=cur.winner==='draw'?'It's a draw!':cur.winner===mark?'You win!':'Opponent wins!';else st.textContent=cur.turn===me?'Your turn':'Opponent's turn'}}function hokm(){hub.classList.add('hidden');lobby.classList.remove('hidden')}document.querySelectorAll('[data-hub]').forEach(b=>b.onclick=()=>{const a=b.dataset.hub;if(a==='private'||a==='offline-hokm')hokm();else if(a==='offline-ttt')ttt();else if(a==='offline-c4')c4();else if(a==='public-ttt')pub('ttt');else pub('connect4')})})();</script></body>
 </html>
