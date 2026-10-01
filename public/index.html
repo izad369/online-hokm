@@ -101,8 +101,8 @@ enter; justify-content:space-between; gap:8px; background:#0f172a; border:1px so
 
 <section id="hub" class="hub"><h1>🃏 Card Game Hub</h1><p>Various games — offline vs bot and online</p><input id="hubName" placeholder="Your name" maxlength="20" style="display:block;width:100%;max-width:420px;margin:18px auto;padding:12px;border-radius:9px;border:1px solid #334155;background:#0f172a;color:#e2e8f0">
 <div id="camPanel" style="margin:14px auto;max-width:420px;text-align:left;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px">
-  <div id="camStatus" style="font-size:.85rem;color:#94a3b8;margin-bottom:10px">🎮 <b>Game Account</b> — sign in once, use the same identity in every game.</div>
-  <button id="camShowBtn" type="button" style="width:auto;padding:9px 14px;background:#334155;color:#e2e8f0;font-size:.9rem">Sign in with Game Account</button>
+  <div id="camStatus" style="font-size:.85rem;color:#94a3b8;margin-bottom:10px">🎮 <b>Game Hub</b> — one account for all your games (Court Piece &amp; Neon Slither).</div>
+  <button id="camShowBtn" type="button" style="width:auto;padding:9px 14px;background:#334155;color:#e2e8f0;font-size:.9rem">Sign in with Game Hub</button>
   <div id="camForm" style="display:none;margin-top:10px">
     <input id="camUser" placeholder="Username" maxlength="20" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;margin-bottom:8px">
     <input id="camPass" type="password" placeholder="Password" style="width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;margin-bottom:8px">
@@ -500,7 +500,6 @@ rim()}));x.value=''};w.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==='queue
   'use strict';
   var CAM = 'https://game-account-manager.rezaei-reza1092.workers.dev/api';
   var hubName = document.getElementById('hubName');
-  var panel = document.getElementById('camPanel');
   var statusEl = document.getElementById('camStatus');
   var formEl = document.getElementById('camForm');
   var msgEl = document.getElementById('camMsg');
@@ -508,36 +507,42 @@ rim()}));x.value=''};w.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==='queue
   function setMsg(t, ok) { msgEl.textContent = t; msgEl.style.color = ok ? '#22c55e' : '#ef4444'; }
 
   async function camApi(path, body) {
-    var r = await fetch(CAM + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {})
-    });
+    var r;
+    try {
+      r = await fetch(CAM + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+    } catch (e) {
+      throw new Error('Cannot reach the Game Hub service. Please make sure the game-account-manager Worker is deployed (Cloudflare dashboard → Workers & Pages → create it from the Izad-game-account-manager repo).');
+    }
     var d = await r.json().catch(function () { return {}; });
     if (!r.ok) throw new Error(d.error || 'Request failed.');
     return d;
   }
 
   function signedIn(username) {
-    try { localStorage.setItem('gam_token', window.__gamToken); localStorage.setItem('gam_username', username); } catch (e) {}
+    try { localStorage.setItem('gam_username', username); } catch (e) {}
     hubName.value = username;
-    statusEl.innerHTML = '🎮 Signed in as <b style="color:#22c55e">' + username + '</b> — your name is locked to your Game Account.';
+    statusEl.innerHTML = '🎮 Signed in as <b style="color:#22c55e">' + username + '</b> — your name is locked to your Game Hub account.';
     formEl.style.display = 'none';
-    panel.style.display = 'block';
   }
 
-  // Auto sign-in from saved token
   (async function () {
     var token = null;
     try { token = localStorage.getItem('gam_token'); } catch (e) {}
     if (!token) return;
     try {
-      var r = await fetch(CAM + '/me?token=' + encodeURIComponent(token));
-      if (!r.ok) throw new Error();
+      var r;
+      try {
+        r = await fetch(CAM + '/me?token=' + encodeURIComponent(token));
+      } catch (e) { return; }
+      if (!r.ok) { try { localStorage.removeItem('gam_token'); } catch (e2) {} return; }
       var d = await r.json();
       window.__gamToken = token;
       signedIn(d.username);
-    } catch (e) { try { localStorage.removeItem('gam_token'); } catch (e2) {} }
+    } catch (e) {}
   })();
 
   document.getElementById('camShowBtn').onclick = function () {
@@ -549,6 +554,7 @@ rim()}));x.value=''};w.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==='queue
     try {
       var d = await camApi('/login', { username: document.getElementById('camUser').value, password: document.getElementById('camPass').value });
       window.__gamToken = d.token;
+      try { localStorage.setItem('gam_token', d.token); } catch (e) {}
       signedIn(d.username);
     } catch (e) { setMsg(e.message, false); }
   };
@@ -558,6 +564,7 @@ rim()}));x.value=''};w.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==='queue
     try {
       var d = await camApi('/signup', { username: document.getElementById('camUser').value, password: document.getElementById('camPass').value });
       window.__gamToken = d.token;
+      try { localStorage.setItem('gam_token', d.token); } catch (e) {}
       signedIn(d.username);
     } catch (e) { setMsg(e.message, false); }
   };
