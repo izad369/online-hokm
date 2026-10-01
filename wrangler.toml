@@ -11,10 +11,5 @@ bindings = [
 type = "durable-object"
 storage = "sqlite"
 
-# Retire the orphaned MatchDO namespace (was provisioned but never exported in code)
-[exports.MatchDO]
-type = "durable-object"
-state = "deleted"
-
 [assets]
 directory = "./public"
